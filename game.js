@@ -4,7 +4,7 @@ class GridSystem { //TODO fortsette
     // TODO legge til Inky
     // TODO Gjøre koden mer dynamisk for å redusere mengde linjer kode
     // TODO Gjøre umulig å stoppe i en vegg
-    // TODO Kanskje ta noe kode ut av classen?
+    // TODO skjekke om du kan bare gå en rettning
     constructor(matrix, pacmanX, pacmanY, blinkyX, blinkyY, pinkyX, pinkyY, inkyX, inkyY) { //Lager mange lag som ligger oppå hverandre for å vise siden og definerer disse.
         this.matrix = matrix;
         this.uiContext = this.#makeCanvas(850, 850, "#000");
@@ -44,7 +44,7 @@ class GridSystem { //TODO fortsette
         //game variabler
         this.FPS = 5;
         this.play = false;
-        this.dotCount = null; //Setter dotCount til NULL istede for 0, fordi dotCount === 0 vil slutte av programmet lengre nede
+        this.dotCount = null; //SettCer dotCount til NULL istede for 0, fordi dotount === 0 vil slutte av programmet lengre nede
 
         document.addEventListener("keydown", this.#rotatePacman); //Koden hører alltid etter et innput fra tasturet til brukeren
     }
