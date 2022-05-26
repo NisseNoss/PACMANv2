@@ -61,12 +61,10 @@ class GridSystem { //TODO fortsette
 
     #isValidMove(x, y) { //Sjekker om pacman kan bevege seg i valgt rettning
         if (this.matrix[this.pacman.y + y][this.pacman.x + x] === 0) { //Flytter dersom neste posisjon er tom
-            this.trueCalls++
             return true;
         }
         else if (this.matrix[this.pacman.y + y][this.pacman.x + x] === 4) { //Flytter dersom neste posisjon er en coin
             score = score + 10; //Pacman har plukket opp en coin og score øker med 10
-            this.trueCalls++
             return true;
         }
         return false;
@@ -99,12 +97,15 @@ class GridSystem { //TODO fortsette
 
     isValidGhost(x, y, ghostX, ghostY) { //Sjekker om Blinky kan bevege seg i valgt rettning
         if (this.matrix[ghostY + y][ghostX + x] === 0) { //Flytter dersom neste posisjon er tom
+            this.trueCalls++
             return true;
         }
         else if (this.matrix[ghostY + y][ghostX + x] === 4) { //Flytter dersom neste posisjon er en coin
+            this.trueCalls++
             return true;
         }
         else if (this.matrix[ghostY + y][ghostX + x] === 3) { //Flytter dersom neste posisjon er pacman
+            this.trueCalls++
             return true;
         }
         return false; // Hvis ingen av if påstandene er sanne returner vi false
@@ -505,7 +506,7 @@ class GridSystem { //TODO fortsette
     }
 
 
-    #needMove(ghostX, ghostY, ghostDir) {
+    #checkIntersection(ghostX, ghostY, ghostDir) { // TODO fix this
         this.trueCalls = 0;
         if (ghostDir === 0) { // Venstre
             this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
@@ -527,11 +528,13 @@ class GridSystem { //TODO fortsette
             this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
             this.isValidGhost(0, 1, ghostX, ghostY); // Ned
         }
-        return this.trueCalls <= 1;
+        console.log(this.trueCalls)
+        return this.trueCalls > 1;
     }
 
     moveBlinky() {
-        if (this.#needMove(this.blinky.x, this.blinky.y, this.blinky.dir )) {
+        console.log(this.blinky.dir)
+        if (this.#checkIntersection(this.blinky.x, this.blinky.y, this.blinky.dir)) {
             this.findDirGhost(this.blinky.x, this.blinky.y, 1)
         }
 
@@ -578,7 +581,7 @@ class GridSystem { //TODO fortsette
     }
 
     moveInky() {
-        if (this.#needMove(this.inky.x, this.inky.y, this.inky.dir )) {
+        if (this.#checkIntersection(this.inky.x, this.inky.y, this.inky.dir )) {
             this.findDirGhost(this.inky.x, this.inky.y, 3)
         }
 
