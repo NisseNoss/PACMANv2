@@ -1,40 +1,36 @@
 class GridSystem { //TODO fortsette
+    // TODO Kommentere!!
     // TODO Legge til Pinky
     // TODO legge til Clyde
-    // TODO legge til Inky
-    // TODO Gjøre koden mer dynamisk for å redusere mengde linjer kode
+    // TODO Lage chase og scatter modus
+    // TODO Legge til power pellet
+    // TODO få spøkelsene til å starte i spøkelsehuset og la de komme ut på forskjellige tider
     // TODO Gjøre umulig å stoppe i en vegg
-    // TODO skjekke om du kan bare gå en rettning
+    // TODO Ha en høyre FPS så vi kan legge forskjellige "speeds" og lage animation til bevegelse
     constructor(matrix, pacmanX, pacmanY, blinkyX, blinkyY, pinkyX, pinkyY, inkyX, inkyY) { //Lager mange lag som ligger oppå hverandre for å vise siden og definerer disse.
         this.matrix = matrix;
         this.uiContext = this.#makeCanvas(850, 850, "#000");
         this.outlineContext = this.#makeCanvas(0, 0, "#000");
-        //this.coinContext = this.#makeCanvas(0, 0, "#000", true);
-        //this.topContext = this.#makeCanvas(0, 0, "#000", true);
         //maze størelse
         this.cellSize = 24;
         this.padding = 1;
         //Pacman
-        this.pacman = {x: pacmanX, y: pacmanY, color: "orange"};
+        this.pacman = {x: pacmanX, y: pacmanY, color: "yellow", dir: 0};
         this.matrix [pacmanY][pacmanX] = 3;
-        this.rotation = 0;
 
         //Blinky
-        this.blinky = {x: blinkyX, y: blinkyY, color: "red"};
+        this.blinky = {x: blinkyX, y: blinkyY, color: "red", dir: 0};
         this.matrix [blinkyY][blinkyX] = 5;
-        this.rotationB = 0;
         this.bTile = 4;
 
         //Pinky
-        this.pinky = {x: pinkyX, y: blinkyY, color: "#FFB9FF"};
+        this.pinky = {x: pinkyX, y: blinkyY, color: "#FFB9FF", dir: 0};
         this.matrix [pinkyY][pinkyX] = 6;
-        this.rotationP = 0;
         this.pTile = 4;
 
         //Inky
-        this.inky = {x:inkyX, y:inkyY, color: "#00FFFF"}
+        this.inky = {x:inkyX, y:inkyY, color: "#00FFFF", dir: 0};
         this.matrix [inkyY][inkyX] = 7;
-        this.rotationI = 0;
         this.iTile = 4;
 
         //Clyde
@@ -48,15 +44,6 @@ class GridSystem { //TODO fortsette
 
         document.addEventListener("keydown", this.#rotatePacman); //Koden hører alltid etter et innput fra tasturet til brukeren
     }
-
-    /*#fps() {
-        if (this.timer === this.speed) {
-            this.timer = 0;
-            return true;
-        }
-        this.timer++
-        return false;
-    }*/
 
     uiUpdate() { //Oppdaterer UI laget der score og tid er vist
         this.uiContext.font = "20px Courier";
@@ -74,11 +61,12 @@ class GridSystem { //TODO fortsette
 
     #isValidMove(x, y) { //Sjekker om pacman kan bevege seg i valgt rettning
         if (this.matrix[this.pacman.y + y][this.pacman.x + x] === 0) { //Flytter dersom neste posisjon er tom
+            this.trueCalls++
             return true;
         }
         else if (this.matrix[this.pacman.y + y][this.pacman.x + x] === 4) { //Flytter dersom neste posisjon er en coin
             score = score + 10; //Pacman har plukket opp en coin og score øker med 10
-            //time++;
+            this.trueCalls++
             return true;
         }
         return false;
@@ -92,19 +80,19 @@ class GridSystem { //TODO fortsette
         this.play = true;
 
         if (keyCode === 65 || keyCode === 37) { // Flytter venstre når "A" blir trykket
-            this.rotation = 0;
+            this.pacman.dir = 0;
             console.log("a pressed");
         }
         else if (keyCode === 68 ||keyCode === 39) { // Flytter høyre når "D" blir trykket
-            this.rotation = 180;
+            this.pacman.dir = 180;
             console.log("d pressed");
         }
         else if (keyCode === 87 ||keyCode === 38) { // Flytter oppover når "W" blir trykket
-            this.rotation = 90;
+            this.pacman.dir = 90;
             console.log("w pressed");
         }
         else if (keyCode === 83 ||keyCode === 40) { // Flytter nedover når "S" blir trykket
-            this.rotation = 270;
+            this.pacman.dir = 270;
             console.log("s pressed");
         }
     }
@@ -124,25 +112,25 @@ class GridSystem { //TODO fortsette
 
     #findOffset(ghost) {
         if (ghost === 3) {
-            if (this.rotation === 90) {
+            if (this.pacman.dir === 90) {
                 return {
                     x: 0,
                     y: -2
                 };
             }
-            if (this.rotation === 180) {
+            else if (this.pacman.dir === 180) {
                 return {
                     x: 2,
                     y: 0
                 };
             }
-            if (this.rotation === 270) {
+            else if (this.pacman.dir === 270) {
                 return {
                     x: 0,
                     y: 2
                 };
             }
-            if (this.rotation === 0) {
+            else if (this.pacman.dir === 0) {
                 return {
                     x: -2,
                     y: 0
@@ -150,25 +138,25 @@ class GridSystem { //TODO fortsette
             }
         }
         else if (ghost === 2) {
-            if (this.rotation === 90) {
+            if (this.pacman.dir === 90) {
                 return {
                     x: 0,
                     y: -4
                 };
             }
-            if (this.rotation === 180) {
+            else if (this.pacman.dir === 180) {
                 return {
                     x: 4,
                     y: 0
                 };
             }
-            if (this.rotation === 270) {
+            else if (this.pacman.dir === 270) {
                 return {
                     x: 0,
                     y: 4
                 };
             }
-            if (this.rotation === 0) {
+            else if (this.pacman.dir === 0) {
                 return {
                     x: -4,
                     y: 0
@@ -187,27 +175,22 @@ class GridSystem { //TODO fortsette
         //this.targetI = {x: this.targetx, y: this.targety};
     }
 
-    makeValueBlinky(x, y) { // Vi bruker pytagoras' læresetning for å finne den korteste avstanden
-        this.bPosX = this.blinky.x + x - this.pacman.x; // Side a
-        this.bPosY = this.blinky.y + y - this.pacman.y; // side b
-    }
-
     makeValueGhost(x, y, ghost) {
         if (ghost === 1) {
             this.posX = this.blinky.x + x - this.pacman.x; // Side a
             this.posY = this.blinky.y + y - this.pacman.y; // side b
         }
-        if (ghost === 2) {
+        else if (ghost === 2) {
             let offset = this.#findOffset(2)
             this.posX = this.pinky.x + x - this.pacman.x - offset.x;
             this.posY = this.pinky.y + y - this.pacman.y - offset.y;
         }
-        if (ghost === 3) {
+        else if (ghost === 3) {
             this.findTargetInky()
             this.posX = this.inky.x + x - this.targetx;
             this.posY = this.inky.x + y - this.targety;
         }
-        if (ghost === 4) {
+        else if (ghost === 4) {
 
         }
 
@@ -215,15 +198,15 @@ class GridSystem { //TODO fortsette
 
     #whichGhost(GhostID) {
         if (GhostID === 1) {
-            return this.rotationB;
+            return this.blinky.dir ;
         }
-        if (GhostID === 2) {
-            return this.rotationP;
+        else if (GhostID === 2) {
+            return this.pinky.dir ;
         }
-        if (GhostID === 3) {
-            return this.rotationI;
+        else if (GhostID === 3) {
+            return this.inky.dir ;
         }
-        if (GhostID === 4) {
+        else if (GhostID === 4) {
             return this.rotationC;
         }
     }
@@ -238,15 +221,15 @@ class GridSystem { //TODO fortsette
         if (this.#whichGhost(GhostID) === 90) {//Opp
             if (this.isValidGhost(0, -1, GhostX, GhostY)) { // Sjekker Opp
                 this.makeValueGhost(0, -1, GhostID);
-                this.svar1 = Math.sqrt(this.posX * this.posX + this.posY * this.posY); // gir avstanden til pacmen og spøkelse i luft linje
+                this.svar1 = Math.sqrt(this.posX * this.posX + this.posY * this.posY); // finner avstanden til pacmen og spøkelse i luft linje
             }
 
-            if (this.isValidGhost(1, 0, this.blinky.x, this.blinky.y)) { // Sjekker høyre
+            if (this.isValidGhost(1, 0, GhostX, GhostY)) { // Sjekker høyre
                 this.makeValueGhost(1, 0, GhostID);
                 this.svar2 = Math.sqrt(this.posX * this.posX + this.posY * this.posY); // --||--
             }
 
-            if (this.isValidGhost(-1, 0, this.blinky.x, this.blinky.y)) { // Sjekker venstre
+            if (this.isValidGhost(-1, 0, GhostX, GhostY)) { // Sjekker venstre
                 this.makeValueGhost(-1, 0, GhostID);
                 this.svar3 = Math.sqrt(this.posX * this.posX + this.posY * this.posY); // --||--
             }
@@ -262,38 +245,38 @@ class GridSystem { //TODO fortsette
             // keyen returner et tekst svar
             if (GhostID === 1) {
                 if (this.key === "svar1") { // opp
-                    this.rotationB = 90;
+                    this.blinky.dir  = 90;
                 } else if (this.key === "svar2") { // Høyre
-                    this.rotationB = 180;
+                    this.blinky.dir  = 180;
                 } else if (this.key === "svar3") { // Venstre
-                    this.rotationB = 0;
+                    this.blinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationB = 90;
+                    this.blinky.dir  = 90;
                 }
             }
             else if (GhostID === 2) {
                 if (this.key === "svar1") { // opp
-                    this.rotationP = 90;
+                    this.pinky.dir  = 90;
                 } else if (this.key === "svar2") { // Høyre
-                    this.rotationP = 180;
+                    this.pinky.dir  = 180;
                 } else if (this.key === "svar3") { // Venstre
-                    this.rotationP = 0;
+                    this.pinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationP = 90;
+                    this.pinky.dir  = 90;
                 }
             }
             else if (GhostID === 3) {
                 if (this.key === "svar1") { // opp
-                    this.rotationI = 90;
+                    this.inky.dir  = 90;
                 } else if (this.key === "svar2") { // Høyre
-                    this.rotationI = 180;
+                    this.inky.dir  = 180;
                 } else if (this.key === "svar3") { // Venstre
-                    this.rotationI = 0;
+                    this.inky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationI = 90;
+                    this.inky.dir  = 90;
                 }
             }
             else if (GhostID === 4) {
@@ -310,15 +293,15 @@ class GridSystem { //TODO fortsette
             }
         }
         else if(this.#whichGhost(GhostID) === 180) {//høyre
-            if (this.isValidGhost(0, -1, this.blinky.x, this.blinky.y)) { // Sjekker Opp
+            if (this.isValidGhost(0, -1, GhostX, GhostY)) { // Sjekker Opp
                 this.makeValueGhost(0, -1, GhostID);
                 this.svar1 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(1, 0, this.blinky.x, this.blinky.y)) { //Sjekker høyre
+            if (this.isValidGhost(1, 0, GhostX, GhostY)) { //Sjekker høyre
                 this.makeValueGhost(1, 0, GhostID);
                 this.svar2 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(0, 1, this.blinky.x, this.blinky.y)) {  //Sjekker ned
+            if (this.isValidGhost(0, 1, GhostX, GhostY)) {  //Sjekker ned
                 this.makeValueGhost(0, 1, GhostID);
                 this.svar3 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
@@ -332,38 +315,38 @@ class GridSystem { //TODO fortsette
             //console.log("Høyre "+this.key);
             if (GhostID === 1) {
                 if (this.key === "svar1") {
-                    this.rotationB = 90;
+                    this.blinky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationB = 180;
+                    this.blinky.dir  = 180;
                 } else if (this.key === "svar3") {
-                    this.rotationB = 270;
+                    this.blinky.dir  = 270;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationB = 180;
+                    this.blinky.dir  = 180;
                 }
             }
             else if (GhostID === 2) {
                 if (this.key === "svar1") {
-                    this.rotationP = 90;
+                    this.pinky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationP = 180;
+                    this.pinky.dir  = 180;
                 } else if (this.key === "svar3") {
-                    this.rotationP = 270;
+                    this.pinky.dir  = 270;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationP = 180;
+                    this.pinky.dir  = 180;
                 }
             }
             else if (GhostID === 3) {
                 if (this.key === "svar1") {
-                    this.rotationI = 90;
+                    this.inky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationI = 180;
+                    this.inky.dir  = 180;
                 } else if (this.key === "svar3") {
-                    this.rotationI = 270;
+                    this.inky.dir  = 270;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationI = 180;
+                    this.inky.dir  = 180;
                 }
             }
             else if (GhostID === 4) {
@@ -380,15 +363,15 @@ class GridSystem { //TODO fortsette
             }
         }
         else if (this.#whichGhost(GhostID) === 270) {//ned
-            if (this.isValidGhost(1, 0, this.blinky.x, this.blinky.y)) {
+            if (this.isValidGhost(1, 0, GhostX, GhostY)) {
                 this.makeValueGhost(1, 0, GhostID); //Sjekker høyre
                 this.svar1 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(0, 1, this.blinky.x, this.blinky.y)) {  //Sjekker ned
+            if (this.isValidGhost(0, 1, GhostX, GhostY)) {  //Sjekker ned
                 this.makeValueGhost(0, 1, GhostID);
                 this.svar2 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(-1, 0, this.blinky.x, this.blinky.y)) { // Sjekker venstre
+            if (this.isValidGhost(-1, 0, GhostX, GhostY)) { // Sjekker venstre
                 this.makeValueGhost(-1, 0, GhostID);
                 this.svar3 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
@@ -402,38 +385,38 @@ class GridSystem { //TODO fortsette
             //console.log("Ned" +this.key);
             if (GhostID === 1) {
                 if (this.key === "svar1") {
-                    this.rotationB = 180;
+                    this.blinky.dir  = 180;
                 } else if (this.key === "svar2") {
-                    this.rotationB = 270;
+                    this.blinky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationB = 0;
+                    this.blinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationB = 270;
+                    this.blinky.dir  = 270;
                 }
             }
             else if (GhostID === 2) {
                 if (this.key === "svar1") {
-                    this.rotationP = 180;
+                    this.pinky.dir  = 180;
                 } else if (this.key === "svar2") {
-                    this.rotationP = 270;
+                    this.pinky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationP = 0;
+                    this.pinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationP = 270;
+                    this.pinky.dir  = 270;
                 }
             }
             else if (GhostID === 3) {
                 if (this.key === "svar1") {
-                    this.rotationI = 180;
+                    this.inky.dir  = 180;
                 } else if (this.key === "svar2") {
-                    this.rotationI = 270;
+                    this.inky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationI = 0;
+                    this.inky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationI = 270;
+                    this.inky.dir  = 270;
                 }
             }
             else if (GhostID === 4) {
@@ -450,15 +433,15 @@ class GridSystem { //TODO fortsette
             }
         }
         else if (this.#whichGhost(GhostID) === 0) {//venstre
-            if (this.isValidGhost(0, -1, this.blinky.x, this.blinky.y)) { // Sjekker Opp
+            if (this.isValidGhost(0, -1, GhostX, GhostY)) { // Sjekker Opp
                 this.makeValueGhost(0, -1, GhostID);
                 this.svar1 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(0, 1, this.blinky.x, this.blinky.y)) {  //Sjekker ned
+            if (this.isValidGhost(0, 1, GhostX, GhostY)) {  //Sjekker ned
                 this.makeValueGhost(0, 1, GhostID);
                 this.svar2 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
-            if (this.isValidGhost(-1, 0, this.blinky.x, this.blinky.y)) { // Sjekker venstre
+            if (this.isValidGhost(-1, 0, GhostX, GhostY)) { // Sjekker venstre
                 this.makeValueGhost(-1, 0, GhostID);
                 this.svar3 = Math.sqrt(this.posX * this.posX + this.posY * this.posY);
             }
@@ -472,38 +455,38 @@ class GridSystem { //TODO fortsette
             //console.log("Venstre "+this.key);
             if (GhostID === 1) {
                 if (this.key === "svar1") {
-                    this.rotationB = 90;
+                    this.blinky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationB = 270;
+                    this.blinky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationB = 0;
+                    this.blinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationB = 0;
+                    this.blinky.dir  = 0;
                 }
             }
             if (GhostID === 2) {
                 if (this.key === "svar1") {
-                    this.rotationP = 90;
+                    this.pinky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationP = 270;
+                    this.pinky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationP = 0;
+                    this.pinky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationP = 0;
+                    this.pinky.dir  = 0;
                 }
             }
             if (GhostID === 3) {
                 if (this.key === "svar1") {
-                    this.rotationI = 90;
+                    this.inky.dir  = 90;
                 } else if (this.key === "svar2") {
-                    this.rotationI = 270;
+                    this.inky.dir  = 270;
                 } else if (this.key === "svar3") {
-                    this.rotationI = 0;
+                    this.inky.dir  = 0;
                 }
                 if (this.svar1 === 100 && this.svar2 === 100 && this.svar3 === 100) {
-                    this.rotationI = 0;
+                    this.inky.dir  = 0;
                 }
             }
             if (GhostID === 4) {
@@ -521,21 +504,38 @@ class GridSystem { //TODO fortsette
         }
     }
 
-    /*findDir() {
-        this.value = this.findLogic(), this.min = Infinity, this.key;
-        for (let i in this.value) {
-            if (this.value[i] < this.min) {
-                this.min = this.value[i]
-                this.key = i;
-            }
+
+    #needMove(ghostX, ghostY, ghostDir) {
+        this.trueCalls = 0;
+        if (ghostDir === 0) { // Venstre
+            this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
+            this.isValidGhost(0, -1, ghostX, ghostY); // Opp
+            this.isValidGhost(0, 1, ghostX, ghostY); // Ned
         }
-        console.log(this.key)
-    }*/
+        else if (ghostDir === 90) { // Opp
+            this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
+            this.isValidGhost(0, -1, ghostX, ghostY); // Opp
+            this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
+        }
+        else if (ghostDir === 180) { // Høyre
+            this.isValidGhost(0, -1, ghostX, ghostY); // Opp
+            this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
+            this.isValidGhost(0, 1, ghostX, ghostY); // Ned
+        }
+        else if (ghostDir === 270) { // Ned
+            this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
+            this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
+            this.isValidGhost(0, 1, ghostX, ghostY); // Ned
+        }
+        return this.trueCalls <= 1;
+    }
 
     moveBlinky() {
+        if (this.#needMove(this.blinky.x, this.blinky.y, this.blinky.dir )) {
+            this.findDirGhost(this.blinky.x, this.blinky.y, 1)
+        }
 
-        this.findDirGhost(this.blinky.x, this.blinky.y, 1)
-        if (this.rotationB === 0) { // Venstre
+        if (this.blinky.dir  === 0) { // Venstre
             //console.log("Venstre")
             if (this.isValidGhost(-1, 0, this.blinky.x, this.blinky.y)) { // sjekker om det er en lovlig move
 
@@ -543,23 +543,9 @@ class GridSystem { //TODO fortsette
                 this.bTile = this.matrix[this.blinky.y][this.blinky.x - 1]; // husker verdien til blocken foran spøkelse så vi kan bruke den senere
                 this.updateMatrix(this.blinky.y, this.blinky.x - 1, 5); // endre verdien foran seg selv
                 this.blinky.x--; // oppdatere sin faktiske posisjon i matrixen
-
             }
-
         }
-        if (this.rotationB === 180) { // Høyre
-            //console.log("Høyre")
-            if (this.isValidGhost(1, 0, this.blinky.x, this.blinky.y)) {
-
-                this.updateMatrix(this.blinky.y, this.blinky.x, this.bTile);
-                this.bTile = this.matrix[this.blinky.y][this.blinky.x + 1];
-                this.updateMatrix(this.blinky.y, this.blinky.x + 1, 5);
-                this.blinky.x++;
-
-            }
-
-        }
-        if (this.rotationB === 90) { // Opp
+        if (this.blinky.dir  === 90) { // Opp
             //console.log("Opp")
             if (this.isValidGhost(0, -1, this.blinky.x, this.blinky.y)) {
 
@@ -567,10 +553,19 @@ class GridSystem { //TODO fortsette
                 this.bTile = this.matrix[this.blinky.y - 1][this.blinky.x];
                 this.updateMatrix(this.blinky.y - 1, this.blinky.x, 5);
                 this.blinky.y--;
-
             }
         }
-        if (this.rotationB === 270) { // Ned
+        if (this.blinky.dir  === 180) { // Høyre
+            //console.log("Høyre")
+            if (this.isValidGhost(1, 0, this.blinky.x, this.blinky.y)) {
+
+                this.updateMatrix(this.blinky.y, this.blinky.x, this.bTile);
+                this.bTile = this.matrix[this.blinky.y][this.blinky.x + 1];
+                this.updateMatrix(this.blinky.y, this.blinky.x + 1, 5);
+                this.blinky.x++;
+            }
+        }
+        if (this.blinky.dir  === 270) { // Ned
             //console.log("Ned")
             if (this.isValidGhost(0, 1, this.blinky.x, this.blinky.y)) {
 
@@ -578,14 +573,16 @@ class GridSystem { //TODO fortsette
                 this.bTile = this.matrix[this.blinky.y + 1][this.blinky.x];
                 this.updateMatrix(this.blinky.y + 1, this.blinky.x, 5);
                 this.blinky.y++;
-
             }
         }
     }
 
     moveInky() {
-        this.findDirGhost(this.inky.x, this.inky.y, 3)
-        if (this.rotationI === 0) { // Venstre
+        if (this.#needMove(this.inky.x, this.inky.y, this.inky.dir )) {
+            this.findDirGhost(this.inky.x, this.inky.y, 3)
+        }
+
+        if (this.inky.dir  === 0) { // Venstre
             //console.log("Venstre")
             if (this.isValidGhost(-1, 0, this.inky.x, this.inky.y)) { // sjekker om det er en lovlig move
 
@@ -593,11 +590,9 @@ class GridSystem { //TODO fortsette
                 this.iTile = this.matrix[this.inky.y][this.inky.x - 1]; // husker verdien til blocken foran spøkelse så vi kan bruke den senere
                 this.updateMatrix(this.inky.y, this.inky.x - 1, 7); // endre verdien foran seg selv
                 this.inky.x--; // oppdatere sin faktiske posisjon i matrixen
-
             }
-
         }
-        if (this.rotationI === 180) { // Høyre
+        if (this.inky.dir  === 180) { // Høyre
             //console.log("Høyre")
             if (this.isValidGhost(1, 0, this.inky.x, this.inky.y)) {
 
@@ -605,11 +600,9 @@ class GridSystem { //TODO fortsette
                 this.iTile = this.matrix[this.inky.y][this.inky.x + 1];
                 this.updateMatrix(this.inky.y, this.inky.x + 1, 7);
                 this.inky.x++;
-
             }
-
         }
-        if (this.rotationI === 90) { // Opp
+        if (this.inky.dir  === 90) { // Opp
             //console.log("Opp")
             if (this.isValidGhost(0, -1, this.inky.x, this.inky.y)) {
 
@@ -617,10 +610,9 @@ class GridSystem { //TODO fortsette
                 this.iTile = this.matrix[this.inky.y - 1][this.inky.x];
                 this.updateMatrix(this.inky.y - 1, this.inky.x, 7);
                 this.inky.y--;
-
             }
         }
-        if (this.rotationI === 270) { // Ned
+        if (this.inky.dir  === 270) { // Ned
             //console.log("Ned")
             if (this.isValidGhost(0, 1, this.inky.x, this.inky.y)) {
 
@@ -628,35 +620,34 @@ class GridSystem { //TODO fortsette
                 this.iTile = this.matrix[this.inky.y + 1][this.inky.x];
                 this.updateMatrix(this.inky.y + 1, this.inky.x, 7);
                 this.inky.y++;
-
             }
         }
     }
 
 
     movePacman() { //Sjekker om rotasjon kan føre til et gyldig flytt med #isValidMove
-        if (this.rotation === 0) { // Sjekker venstre rotasjon
+        if (this.pacman.dir === 0) { // Sjekker venstre rotasjon
             if (this.#isValidMove(-1, 0)) {
                 this.updateMatrix(this.pacman.y, this.pacman.x, 0); // sletter pacman visuelt
                 this.updateMatrix(this.pacman.y, this.pacman.x - 1, 3); // plasserer pacman en block til venstre visuelt
                 this.pacman.x--; //Dersom flyttet er gyldig, flyttes pacman en gang mot venstre i matrixen
             }
         }
-        if (this.rotation === 180) { // Sjekker høyre rotasjon
+        if (this.pacman.dir === 180) { // Sjekker høyre rotasjon
             if (this.#isValidMove(1, 0)) {
                 this.updateMatrix(this.pacman.y, this.pacman.x, 0);
                 this.updateMatrix(this.pacman.y, this.pacman.x + 1, 3);
                 this.pacman.x++; //Dersom flyttet er gyldig, flyttes pacman en gang mot høyre i matrixen
             }
         }
-        if (this.rotation === 90) { // Sjekker oppover rotasjon
+        if (this.pacman.dir === 90) { // Sjekker oppover rotasjon
             if (this.#isValidMove(0, -1)) {
                 this.updateMatrix(this.pacman.y, this.pacman.x, 0);
                 this.updateMatrix(this.pacman.y - 1, this.pacman.x, 3);
                 this.pacman.y--; //Dersom flyttet er gyldig, flyttes pacman en gang mot oppover i matrixen
             }
         }
-        if (this.rotation === 270) { // Sjekker nedover rotasjon
+        if (this.pacman.dir === 270) { // Sjekker nedover rotasjon
             if (this.#isValidMove(0, 1)) {
                 this.updateMatrix(this.pacman.y, this.pacman.x, 0);
                 this.updateMatrix(this.pacman.y + 1, this.pacman.x, 3);
@@ -705,7 +696,7 @@ class GridSystem { //TODO fortsette
         this.outlineContext.canvas.width = w;
         this.outlineContext.canvas.height = h;
 
-        const center = this.#getCenter(w, h); //TODO Finn ut av dette i 20/11
+        const center = this.#getCenter(w, h);
         this.outlineContext.canvas.style.marginTop = center.y;
         this.outlineContext.canvas.style.marginLeft = center.x;
 
@@ -868,10 +859,8 @@ function updateHighScore() {
     //console.log(highscore)
 }
 
-
 function gameLoop() { // Tatt fra https://github.com/KristianHelland/worm som tok det fra https://github.com/AndreasVJ/snake
     if (gridSystem.play) {
-        console.log(gridSystem.rotationI)
         updateHighScore();
         gridSystem.movePacman();
         gridSystem.moveBlinky();
@@ -922,7 +911,9 @@ function gameLoop() { // Tatt fra https://github.com/KristianHelland/worm som to
         gridSystem.render();
         console.log(score); //Skriver ut scoren i consolen
     }
-    if(gridSystem.matrix[gridSystem.pacman.y][gridSystem.pacman.x] === gridSystem.matrix[gridSystem.blinky.y][gridSystem.blinky.x]) { //Dette skjer når tiden går ut
+    if(gridSystem.matrix[gridSystem.pacman.y][gridSystem.pacman.x] === gridSystem.matrix[gridSystem.blinky.y][gridSystem.blinky.x]
+        || gridSystem.matrix[gridSystem.pacman.y][gridSystem.pacman.x] === gridSystem.matrix[gridSystem.pinky.y][gridSystem.pinky.x]
+        || gridSystem.matrix[gridSystem.pacman.y][gridSystem.pacman.x] === gridSystem.matrix[gridSystem.inky.y][gridSystem.inky.x]) { //Dette skjer når tiden går ut
         lives--
         if (lives === 0) {
             console.log("Game over"); //Logger "game over" i console
@@ -932,8 +923,10 @@ function gameLoop() { // Tatt fra https://github.com/KristianHelland/worm som to
                 setTimeout(sendHighScore, 3000);
             }
             return; //Går ut av gameloopen som betyr at spillet stopper
-        }
 
+        }
+        gridSystem.outlineContext.canvas.parentNode.removeChild(gridSystem.outlineContext.canvas) // sletter gammel canvas
+        gridSystem.uiContext.canvas.parentNode.removeChild(gridSystem.uiContext.canvas)
         gridSystem.updateMatrix(gridSystem.pacman.y, gridSystem.pacman.x, 0);
         gridSystem.updateMatrix(gridSystem.blinky.y, gridSystem.blinky.x, 0);
         gridSystem.updateMatrix(gridSystem.inky.y, gridSystem.inky.x, 0);
