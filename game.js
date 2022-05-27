@@ -506,30 +506,26 @@ class GridSystem { //TODO fortsette
     }
 
 
-    #checkIntersection(ghostX, ghostY, ghostDir) { // TODO fix this
+    #checkIntersection(ghostX, ghostY, ghostDir) {
         this.trueCalls = 0;
         if (ghostDir === 0) { // Venstre
-            this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
             this.isValidGhost(0, -1, ghostX, ghostY); // Opp
             this.isValidGhost(0, 1, ghostX, ghostY); // Ned
         }
         else if (ghostDir === 90) { // Opp
             this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
-            this.isValidGhost(0, -1, ghostX, ghostY); // Opp
             this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
         }
         else if (ghostDir === 180) { // Høyre
             this.isValidGhost(0, -1, ghostX, ghostY); // Opp
-            this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
             this.isValidGhost(0, 1, ghostX, ghostY); // Ned
         }
         else if (ghostDir === 270) { // Ned
             this.isValidGhost(-1, 0, ghostX, ghostY); // Venstre
             this.isValidGhost(1, 0, ghostX, ghostY); // Høyre
-            this.isValidGhost(0, 1, ghostX, ghostY); // Ned
         }
         console.log(this.trueCalls)
-        return this.trueCalls > 1;
+        return this.trueCalls > 0;
     }
 
     moveBlinky() {
